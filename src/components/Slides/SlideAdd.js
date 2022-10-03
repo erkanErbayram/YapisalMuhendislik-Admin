@@ -1,35 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { putSlayt } from "../../redux/actions/slaytActions";
+import { setSlide } from "../../redux/actions/slideActions";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
-import { Link } from "react-router-dom";
-const SlaytEkle = ({ location: { state }, putSlayt }) => {
+const SlideAdd = ({ setSlide }) => {
   const [formData, setFormData] = useState({
-    resim: [],
+    checked: true,
+    image: [],
   });
   let history = useHistory();
-  const [anaSayfadaGosterilsinMi, setanaSayfadaGosterilsinMi] = useState(
-    state == null ? "" : state.anaSayfadaGosterilsinMi
-  );
+  const [showMainPage, setShowMainPage] = useState(true);
+  const [error, setError] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const { resim } = formData;
-  useEffect(() => {
-    if (state == null) {
-      history.push("/Slaytlar");
-    }
-  }, []);
+  const { image } = formData;
   const onChange = (e) => {
+    setError(false);
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-      resim: e.target.files,
+      image: e.target.files,
     });
-    
+
     if (e.target.files) {
       const filesArray = Array.from(e.target.files).map((file) =>
         URL.createObjectURL(file)
@@ -56,14 +53,18 @@ const SlaytEkle = ({ location: { state }, putSlayt }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-   
+    if (image.length === 0) {
+      setError(true);
+      window.alert("Lütfen Resim Seçiniz");
+      return;
+    }
     let form_data = new FormData();
-    form_data.append("anaSayfadaGosterilsinMi", anaSayfadaGosterilsinMi);
-    for (const key of Object.keys(resim)) {
-      form_data.append("resim", resim[key]);
+    form_data.append("showMainPage", showMainPage);
+    for (const key of Object.keys(image)) {
+      form_data.append("image", image[key]);
     }
 
-    putSlayt(form_data, state._id);
+    setSlide(form_data);
     history.push("/Slaytlar");
   };
   return (
@@ -82,7 +83,7 @@ const SlaytEkle = ({ location: { state }, putSlayt }) => {
                       </li>
 
                       <li>
-                        <span>Referans Ekle</span>
+                        <span>Slayt Ekle</span>
                       </li>
                     </ul>
                     <div className="page-content-inner">
@@ -100,7 +101,7 @@ const SlaytEkle = ({ location: { state }, putSlayt }) => {
                               >
                                 <div className="form-body">
                                   <h3 className="form-section">
-                                    Referans Ekle
+                                    Slayt Ekle
                                   </h3>
                                   <div className="form-group ">
                                     <label
@@ -113,13 +114,13 @@ const SlaytEkle = ({ location: { state }, putSlayt }) => {
                                       <input
                                         type="checkbox"
                                         id="inputSuccess"
-                                        name="anaSayfadaGosterilsinMi"
+                                        name="showMainPage"
                                         onChange={(e) =>
-                                          setanaSayfadaGosterilsinMi(
-                                            !anaSayfadaGosterilsinMi
+                                          setShowMainPage(
+                                            !showMainPage
                                           )
                                         }
-                                        checked={anaSayfadaGosterilsinMi}
+                                        checked={showMainPage}
                                       />{" "}
                                     </div>
                                   </div>
@@ -138,37 +139,46 @@ const SlaytEkle = ({ location: { state }, putSlayt }) => {
                                               onChange={(e) => onChange(e)}
                                               type="file"
                                               multiple
-                                              name="resim"
+                                              name="image"
+                                              required={error ? true : false}
                                             />{" "}
                                           </span>
                                         </div>
-                                        <div>
-                                          {" "}
-                                          {selectedFiles.length === 0 ? (
-                                            <img
-                                              onClick={() => setIsOpen(true)}
-                                              className="img-preview"
-                                              src={
-                                                state == null ? "" : state.resim
-                                              }
-                                              alt=""
-                                              key={
-                                                state == null ? "" : state.resim
-                                              }
-                                            />
-                                          ) : (
-                                            renderPhotos(selectedFiles)
-                                          )}
-                                        </div>
+                                        <div>{renderPhotos(selectedFiles)}</div>
                                         {isOpen && (
                                           <Lightbox
-                                            mainSrc={
-                                              selectedFiles.length === 0
-                                                ? state.resim
-                                                : selectedFiles[photoIndex]
+                                            mainSrc={selectedFiles[photoIndex]}
+                                            nextSrc={
+                                              selectedFiles[
+                                                (photoIndex + 1) %
+                                                  selectedFiles.length
+                                              ]
+                                            }
+                                            prevSrc={
+                                              selectedFiles[
+                                                (photoIndex +
+                                                  selectedFiles.length -
+                                                  1) %
+                                                  selectedFiles.length
+                                              ]
                                             }
                                             onCloseRequest={() =>
                                               setIsOpen(false)
+                                            }
+                                            onMovePrevRequest={() => {
+                                           
+                                              setPhotoIndex(
+                                                (photoIndex +
+                                                  selectedFiles.length -
+                                                  1) %
+                                                  selectedFiles.length
+                                              );
+                                            }}
+                                            onMoveNextRequest={() =>
+                                              setPhotoIndex(
+                                                (photoIndex + 1) %
+                                                  selectedFiles.length
+                                              )
                                             }
                                           />
                                         )}
@@ -205,14 +215,6 @@ const SlaytEkle = ({ location: { state }, putSlayt }) => {
                   </div>
                 </div>
               </div>
-
-              {/*   <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -220,10 +222,10 @@ const SlaytEkle = ({ location: { state }, putSlayt }) => {
     </>
   );
 };
-SlaytEkle.propTypes = {
-  putSlayt: PropTypes.func.isRequired,
+SlideAdd.propTypes = {
+  setSlide: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({});
 export default connect(mapStateToProps, {
-  putSlayt,
-})(SlaytEkle);
+  setSlide,
+})(SlideAdd);

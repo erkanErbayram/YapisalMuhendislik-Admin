@@ -1,37 +1,25 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { putKategori } from "../../redux/actions/kategoriActions";
-import { Link, useHistory } from "react-router-dom";
-const KategoriGuncelle = ({
-  location: { state },
-  putKategori,
-  kategori: { err },
-}) => {
+import { setCategory } from "../../redux/actions/categoryActions";
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
+const CategoryAdd = ({ setCategory, error, loading }) => {
   const [formData, setFormData] = useState({
-    kategoriAdi: state == null ? "" : state.kategoriAdi,
+    categoryName: "",
   });
-
-  const { kategoriAdi } = formData;
+  const { categoryName } = formData;
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   let history = useHistory();
-  useEffect(() => {
-    
-    if (typeof state === "undefined") {
-      return history.push("/Kategoriler");
-    }
-  }, []);
   const onSubmit = async (e) => {
     e.preventDefault();
-    putKategori(kategoriAdi, state._id);
-    if (err) {
-      return;
-    } else {
-      history.push("/Kategoriler");
-    }
+    setCategory({ categoryName });
+    setFormData({ categoryName: "" });
+    history.push('/Kategoriler')
   };
+
   return (
     <Fragment>
       <div className="page-wrapper">
@@ -81,13 +69,15 @@ const KategoriGuncelle = ({
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="kategoriAdi"
+                                        name="categoryName"
                                         onChange={(e) => onChange(e)}
-                                        value={kategoriAdi}
+                                        value={categoryName}
                                       />{" "}
                                     </div>
                                   </div>
+                               
                                 </div>
+
                                 <div className="form-actions">
                                   <div className="row">
                                     <div className="col-md-offset-3 col-md-9">
@@ -117,14 +107,6 @@ const KategoriGuncelle = ({
                   </div>
                 </div>
               </div>
-
-           {/*    <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -132,8 +114,12 @@ const KategoriGuncelle = ({
     </Fragment>
   );
 };
-KategoriGuncelle.propTypes = {
-  putKategori: PropTypes.func.isRequired,
+CategoryAdd.propTypes = {
+  setCategory: PropTypes.func.isRequired,
 };
-const mapStateToProps = (state) => ({ kategori: state.kategori });
-export default connect(mapStateToProps, { putKategori })(KategoriGuncelle);
+const mapStateToProps = (state) => ({
+  category: state.category,
+  error: state.category.error,
+  loading: state.category.loading,
+});
+export default connect(mapStateToProps, { setCategory })(CategoryAdd);

@@ -1,28 +1,28 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { setReferans } from "../../redux/actions/referansActions";
+import { setReference } from "../../redux/actions/referenceActions";
 import { useHistory } from "react-router";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 import { Link } from "react-router-dom";
-const ReferansEkle = ({ setReferans }) => {
+const ReferenceAdd = ({ setReference }) => {
   const [formData, setFormData] = useState({
-    firmaAdi: "",
+    companyName: "",
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
-    const [hata, setHata] = useState(false);
-  const [resim, setResim] = useState([]);
+    const [error, setError] = useState(false);
+  const [image, setImage] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const { firmaAdi } = formData;
+  const { companyName } = formData;
   let history = useHistory();
-  const onChangeResim = (e) => {
+  const onChangeImage = (e) => {
     if (selectedFiles.length > 0) {
       e.target.files = null;
       setSelectedFiles([]);
     }
-    setResim(e.target.files);
+    setImage(e.target.files);
     if (e.target.files) {
       const filesArray = Array.from(e.target.files).map((file) =>
         URL.createObjectURL(file)
@@ -60,18 +60,18 @@ const ReferansEkle = ({ setReferans }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (resim.length===0) {
-      setHata(true);
+    if (image.length===0) {
+      setError(true);
       window.alert("Lütfen Resim Seçiniz");
       return;
     }
     let form_data = new FormData();
-    form_data.append("firmaAdi", firmaAdi);
-    for (const key of Object.keys(resim)) {
-      form_data.append("resim", resim[key]);
+    form_data.append("companyName", companyName);
+    for (const key of Object.keys(image)) {
+      form_data.append("image", image[key]);
     }
 
-    setReferans(form_data);
+    setReference(form_data);
     history.push("/Referanslar");
   };
   return (
@@ -123,9 +123,9 @@ const ReferansEkle = ({ setReferans }) => {
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="firmaAdi"
+                                        name="companyName"
                                         onChange={(e) => onChange(e)}
-                                        value={firmaAdi}
+                                        value={companyName}
                                       />{" "}
                                     </div>
                                   </div>
@@ -142,11 +142,11 @@ const ReferansEkle = ({ setReferans }) => {
                                           <span className="input-group-addon btn default btn-file">
                                             <input
                                               onChange={(e) => {
-                                                onChangeResim(e);
+                                                onChangeImage(e);
                                               }}
                                               type="file"
-                                              name="resim"
-                                              required={hata ? true : false}
+                                              name="image"
+                                              required={error ? true : false}
                                             />{" "}
                                           </span>
                                       
@@ -222,14 +222,6 @@ const ReferansEkle = ({ setReferans }) => {
                   </div>
                 </div>
               </div>
-
-            {/*   <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -237,10 +229,10 @@ const ReferansEkle = ({ setReferans }) => {
     </>
   );
 };
-ReferansEkle.propTypes = {
-  setReferans: PropTypes.func.isRequired,
+ReferenceAdd.propTypes = {
+  setReference: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({});
 export default connect(mapStateToProps, {
-  setReferans,
-})(ReferansEkle);
+  setReference,
+})(ReferenceAdd);

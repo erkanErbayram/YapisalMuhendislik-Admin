@@ -1,30 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { setSlayt } from "../../redux/actions/slaytActions";
-import { useHistory } from "react-router";
-import { Link } from "react-router-dom";
+import { updateReference } from "../../redux/actions/referenceActions";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
-const SlaytEkle = ({ setSlayt }) => {
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
+const ReferenceUpdate = ({ location: { state }, updateReference }) => {
   const [formData, setFormData] = useState({
-    checked: true,
-    resim: [],
+    companyName: state == null ? "" : state.companyName,
   });
   let history = useHistory();
-  const [anaSayfadaGosterilsinMi, setanaSayfadaGosterilsinMi] = useState(true);
-  const [hata, setHata] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const { companyName } = formData;
+  const [copyImage, setCopyImage] = useState([]);
+  const [image, setImage] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const { resim } = formData;
-  const onChange = (e) => {
+  const [hata, setHata] = useState(false);
+  useEffect(() => {
+    if (typeof state === "undefined") {
+      return history.push("/Referanslar");
+    }
+  }, []);
+  const onChangeImage = (e) => {
+    if (selectedFiles.length > 0) {
+      e.target.files = null;
+      setSelectedFiles([]);
+    }
     setHata(false);
+    setImage(e.target.files);
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files).map((file) =>
+        URL.createObjectURL(file)
+      );
 
+      setSelectedFiles((prevImages) => prevImages.concat(filesArray));
+      Array.from(e.target.files).map(
+        (file) => URL.revokeObjectURL(file) // avoid memory leak
+      );
+
+      if (copyImage.length === 0) {
+        setCopyImage(filesArray);
+      }
+    }
+  };
+  const onChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-      resim: e.target.files,
     });
 
     if (e.target.files) {
@@ -53,19 +77,13 @@ const SlaytEkle = ({ setSlayt }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (resim.length === 0) {
-      setHata(true);
-      window.alert("Lütfen Resim Seçiniz");
-      return;
-    }
     let form_data = new FormData();
-    form_data.append("anaSayfadaGosterilsinMi", anaSayfadaGosterilsinMi);
-    for (const key of Object.keys(resim)) {
-      form_data.append("resim", resim[key]);
+    form_data.append("companyName", companyName);
+    for (const key of Object.keys(image)) {
+      form_data.append("image", image[key]);
     }
-
-    setSlayt(form_data);
-    history.push("/Slaytlar");
+    updateReference(form_data, state._id);
+    history.push("/Referanslar");
   };
   return (
     <>
@@ -83,7 +101,7 @@ const SlaytEkle = ({ setSlayt }) => {
                       </li>
 
                       <li>
-                        <span>Slayt Ekle</span>
+                        <span>Referans Ekle</span>
                       </li>
                     </ul>
                     <div className="page-content-inner">
@@ -108,19 +126,17 @@ const SlaytEkle = ({ setSlayt }) => {
                                       className="control-label col-md-3"
                                       htmlFor="inputSuccess"
                                     >
-                                      Gösterilsin Mi
+                                      Firma Adı
                                     </label>
                                     <div className="col-md-4">
                                       <input
-                                        type="checkbox"
+                                        required
+                                        type="text"
+                                        className="form-control"
                                         id="inputSuccess"
-                                        name="anaSayfadaGosterilsinMi"
-                                        onChange={(e) =>
-                                          setanaSayfadaGosterilsinMi(
-                                            !anaSayfadaGosterilsinMi
-                                          )
-                                        }
-                                        checked={anaSayfadaGosterilsinMi}
+                                        name="companyName"
+                                        onChange={(e) => onChange(e)}
+                                        value={companyName}
                                       />{" "}
                                     </div>
                                   </div>
@@ -136,49 +152,43 @@ const SlaytEkle = ({ setSlayt }) => {
                                         <div className="input-group input-large">
                                           <span className="input-group-addon btn default btn-file">
                                             <input
-                                              onChange={(e) => onChange(e)}
+                                              onChange={(e) => {
+                                                onChangeImage(e);
+                                              }}
                                               type="file"
-                                              multiple
-                                              name="resim"
+                                              name="image"
                                               required={hata ? true : false}
                                             />{" "}
                                           </span>
                                         </div>
-                                        <div>{renderPhotos(selectedFiles)}</div>
+                                        <div>
+                                          {" "}
+                                          {selectedFiles.length === 0 ? (
+                                            <img
+                                              onClick={() => setIsOpen(true)}
+                                              className="img-preview"
+                                              src={
+                                                state == null ? "" : state.image
+                                              }
+                                              alt=""
+                                              key={
+                                                state == null ? "" : state.image
+                                              }
+                                            />
+                                          ) : (
+                                            renderPhotos(selectedFiles)
+                                          )}
+                                        </div>
+
                                         {isOpen && (
                                           <Lightbox
-                                            mainSrc={selectedFiles[photoIndex]}
-                                            nextSrc={
-                                              selectedFiles[
-                                                (photoIndex + 1) %
-                                                  selectedFiles.length
-                                              ]
-                                            }
-                                            prevSrc={
-                                              selectedFiles[
-                                                (photoIndex +
-                                                  selectedFiles.length -
-                                                  1) %
-                                                  selectedFiles.length
-                                              ]
+                                            mainSrc={
+                                              selectedFiles.length === 0
+                                                ? state.image
+                                                : selectedFiles[photoIndex]
                                             }
                                             onCloseRequest={() =>
                                               setIsOpen(false)
-                                            }
-                                            onMovePrevRequest={() => {
-                                           
-                                              setPhotoIndex(
-                                                (photoIndex +
-                                                  selectedFiles.length -
-                                                  1) %
-                                                  selectedFiles.length
-                                              );
-                                            }}
-                                            onMoveNextRequest={() =>
-                                              setPhotoIndex(
-                                                (photoIndex + 1) %
-                                                  selectedFiles.length
-                                              )
                                             }
                                           />
                                         )}
@@ -195,7 +205,7 @@ const SlaytEkle = ({ setSlayt }) => {
                                       >
                                         Kaydet
                                       </button>
-                                      <Link to="/Slaytlar">
+                                      <Link to="/Referanslar">
                                         <button
                                           type="button"
                                           className="btn default"
@@ -215,14 +225,6 @@ const SlaytEkle = ({ setSlayt }) => {
                   </div>
                 </div>
               </div>
-
-              {/*  <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -230,10 +232,10 @@ const SlaytEkle = ({ setSlayt }) => {
     </>
   );
 };
-SlaytEkle.propTypes = {
-  setSlayt: PropTypes.func.isRequired,
+ReferenceUpdate.propTypes = {
+  updateReference: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({});
 export default connect(mapStateToProps, {
-  setSlayt,
-})(SlaytEkle);
+  updateReference,
+})(ReferenceUpdate);

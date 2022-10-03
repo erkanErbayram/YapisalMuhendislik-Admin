@@ -1,56 +1,56 @@
 import {
-  PUT_KATEGORI,
-  GET_KATEGORI,
-  SET_KATEGORI,
-  DELETE_KATEGORI,
-  SET_KATEGORI_ERROR,
-  GET_KATEGORI_ID
+  UPDATE_CATEGORY,
+  GET_CATEGORY,
+  SET_CATEGORY,
+  DELETE_CATEGORY,
+  SET_CATEGORY_ERROR,
+  GET_CATEGORY_ID
 } from "../actions/Types";
 
 const initialState = {
   loading: true,
-  kategoriler: [],
-  kategoriID:{},
+  categories: [],
+  categoryID:{},
   error: "",
 };
-export default function kategoriReducer(state = initialState, action) {
+export default function categoryReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
-    case GET_KATEGORI:
+    case GET_CATEGORY:
       return {
         ...state,
-        kategoriler: payload,
+        categories: payload,
         loading: false,
         error:null
       };
-      case GET_KATEGORI_ID:
+      case GET_CATEGORY_ID:
       return {
         ...state,
-        kategoriID: payload,
+        categoryID: payload,
         loading: false,
         error:null
       };
-    case SET_KATEGORI:
+    case SET_CATEGORY:
       return {
         ...state,
         ...payload,
         loading: false,
         error:"Kategori Eklendi"
       };
-    case PUT_KATEGORI:
+    case UPDATE_CATEGORY:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-    case DELETE_KATEGORI:
+    case DELETE_CATEGORY:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-    case SET_KATEGORI_ERROR:
+    case SET_CATEGORY_ERROR:
       return {
         ...state,       
         error: payload,

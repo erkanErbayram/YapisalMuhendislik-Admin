@@ -6,43 +6,38 @@ import {
   Redirect,
 } from "react-router-dom";
 import "./App.css";
-import AltKategoriEkle from "./components/AltKategoriler/AltKategoriEkle";
-import AltKategoriGuncelle from "./components/AltKategoriler/AltKategoriGuncelle";
-import AltKategoriList from "./components/AltKategoriler/AltKategoriList";
-import Footer from "./components/Footer";
-import KategoriEkle from "./components/Kategoriler/KategoriEkle";
-import KategoriGuncelle from "./components/Kategoriler/KategoriGuncelle";
-import KategoriList from "./components/Kategoriler/KategoriList";
 import Login from "./components/Login/Login";
 import Navbar from "./components/Navbar";
 import PrivateRoute from "./components/PrivateRoute";
-import ProjeEkle from "./components/Projeler/ProjeEkle";
-import ProjeGuncelle from "./components/Projeler/ProjeGuncelle";
-import ProjeList from "./components/Projeler/ProjeList";
-import ReferansEkle from "./components/Referanslar/ReferansEkle";
-import ReferansGuncelle from "./components/Referanslar/ReferansGuncelle";
-import ReferansList from "./components/Referanslar/ReferansList";
 import setAuthToken from "./utils/setAuthToken";
 import { connect } from "react-redux";
 import store from "./redux/store";
 import { loadUser } from "./redux/actions/authActions";
 import { LOGOUT } from "./redux/actions/Types";
-import SlaytList from "./components/Slaytlar/SlaytList";
-import SlaytEkle from "./components/Slaytlar/SlaytEkle";
 import NotFound from "./components/NotFound";
-import SlaytGuncelle from "./components/Slaytlar/SlaytGuncelle";
+import ProjectList from "./components/Projects/ProjectList";
+import CategoryList from "./components/Categories/CategoryList";
+import CategoryAdd from "./components/Categories/CategoryAdd";
+import SubCategoryList from "./components/SubCategories/SubCategoryList";
+import SubCategoryAdd from "./components/SubCategories/SubCategoryAdd";
+import ReferenceAdd from "./components/References/ReferenceAdd";
+import ReferenceList from "./components/References/ReferenceList";
+import ProjectAdd from "./components/Projects/ProjectAdd";
+import CategoryUpdate from "./components/Categories/CategoryUpdate";
+import SlideList from "./components/Slides/SlideList";
+import SlideUpdate from "./components/Slides/SlideUpdate";
+import SlideAdd from "./components/Slides/SlideAdd";
+import ReferenceUpdate from "./components/References/ReferenceUpdate";
+import ProjectUpdate from "./components/Projects/ProjectUpdate";
+import SubCategoryUpdate from "./components/SubCategories/SubCategoryUpdate";
 const App = ({ isAuthenticated }) => {
   useEffect(() => {
-    /*     setAuthToken(
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrdWxsYW5pY2kiOnsiaWQiOiI1ZDM5NzJhZjA2MjlmMjNmNGM1ZTM1OTAifSwiaWF0IjoxNTk1MTgyNDA0LCJleHAiOjE1OTUyMTg0MDR9.F3gzbzOeIJuBGT7ncSfJj0vtWISOldb8xTDd6Dsp4mc"
-    ); */
-    // check for token in LS
+ 
     if (localStorage.token) {
       setAuthToken(localStorage.token);
     }
     store.dispatch(loadUser());
 
-    // log user out from all tabs if they log out in one tab
     window.addEventListener("storage", () => {
       if (!localStorage.token) store.dispatch({ type: LOGOUT });
     });
@@ -54,9 +49,7 @@ const App = ({ isAuthenticated }) => {
   }, []);
   return (
     <Router>
-      <Fragment
-        
-      >
+      <Fragment>
         <Switch>
           <Route exact path="/login" component={LoginContainer} />
           <Route path="/" component={DefaultContainer} />
@@ -75,25 +68,25 @@ const LoginContainer = () => (
 const DefaultContainer = () => (
   <div>
     <Navbar />
-    <PrivateRoute exact path="/" component={ProjeList} />
-    <PrivateRoute exact path="/Kategoriler" component={KategoriList} />
-    <PrivateRoute exact path="/KategoriEkle" component={KategoriEkle} />
-    <PrivateRoute exact path="/AltKategoriler" component={AltKategoriList} />
-    <PrivateRoute exact path="/AltKategoriEkle" component={AltKategoriEkle} />
-    <PrivateRoute exact path="/ReferansEkle" component={ReferansEkle} />
-    <PrivateRoute exact path="/Referanslar" component={ReferansList} />
-    <PrivateRoute exact path="/ProjeEkle" component={ProjeEkle} />
-    <PrivateRoute exact path="/KategoriGuncelle" component={KategoriGuncelle} />
-    <PrivateRoute exact path="/Slaytlar" component={SlaytList} />
-    <PrivateRoute exact path="/SlaytGuncelle" component={SlaytGuncelle} />
-    <PrivateRoute exact path="/SlaytEkle" component={SlaytEkle} />
+    <PrivateRoute exact path="/" component={ProjectList} />
+    <PrivateRoute exact path="/Kategoriler" component={CategoryList} />
+    <PrivateRoute exact path="/KategoriEkle" component={CategoryAdd} />
+    <PrivateRoute exact path="/AltKategoriler" component={SubCategoryList} />
+    <PrivateRoute exact path="/AltKategoriEkle" component={SubCategoryAdd} />
+    <PrivateRoute exact path="/ReferansEkle" component={ReferenceAdd} />
+    <PrivateRoute exact path="/Referanslar" component={ReferenceList} />
+    <PrivateRoute exact path="/ProjeEkle" component={ProjectAdd} />
+    <PrivateRoute exact path="/KategoriGuncelle" component={CategoryUpdate} />
+    <PrivateRoute exact path="/Slaytlar" component={SlideList} />
+    <PrivateRoute exact path="/SlaytGuncelle" component={SlideUpdate} />
+    <PrivateRoute exact path="/SlaytEkle" component={SlideAdd} />
     <PrivateRoute
       exact
       path="/AltKategoriGuncelle"
-      component={AltKategoriGuncelle}
+      component={SubCategoryUpdate}
     />
-    <PrivateRoute exact path="/ReferansGuncelle" component={ReferansGuncelle} />
-    <PrivateRoute exact path="/ProjeGuncelle" component={ProjeGuncelle} />
+    <PrivateRoute exact path="/ReferansGuncelle" component={ReferenceUpdate} />
+    <PrivateRoute exact path="/ProjeGuncelle" component={ProjectUpdate} />
    {/*  <Footer /> */}
   </div>
 );

@@ -1,56 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { putReferans } from "../../redux/actions/referansActions";
+import { updateSlide } from "../../redux/actions/slideActions";
+import { useHistory } from "react-router";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
-import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-const ReferansGuncelle = ({ location: { state }, putReferans }) => {
+const SlideUpdate = ({ location: { state }, updateSlide }) => {
   const [formData, setFormData] = useState({
-    firmaAdi: state == null ? "" : state.firmaAdi,
+    image: [],
   });
   let history = useHistory();
+  const [showMainPage, setShowMainPage] = useState(
+    state == null ? "" : state.showMainPage
+  );
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const { firmaAdi } = formData;
-  const [copyImage, setCopyImage] = useState([]);
-  const [resim, setResim] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const [hata, setHata] = useState(false);
+  const { image } = formData;
   useEffect(() => {
-    if (typeof state === "undefined") {
-      return history.push("/Referanslar");
+    if (state == null) {
+      history.push("/Slaytlar");
     }
   }, []);
-  const onChangeResim = (e) => {
-    if (selectedFiles.length > 0) {
-      e.target.files = null;
-      setSelectedFiles([]);
-    }
-    setHata(false);
-    setResim(e.target.files);
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files).map((file) =>
-        URL.createObjectURL(file)
-      );
-
-      setSelectedFiles((prevImages) => prevImages.concat(filesArray));
-      Array.from(e.target.files).map(
-        (file) => URL.revokeObjectURL(file) // avoid memory leak
-      );
-
-      if (copyImage.length === 0) {
-        setCopyImage(filesArray);
-      }
-    }
-  };
   const onChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+      image: e.target.files,
     });
-
+    
     if (e.target.files) {
       const filesArray = Array.from(e.target.files).map((file) =>
         URL.createObjectURL(file)
@@ -77,14 +56,15 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
   };
   const onSubmit = async (e) => {
     e.preventDefault();
-
+   
     let form_data = new FormData();
-    form_data.append("firmaAdi", firmaAdi);
-    for (const key of Object.keys(resim)) {
-      form_data.append("resim", resim[key]);
+    form_data.append("showMainPage", showMainPage);
+    for (const key of Object.keys(image)) {
+      form_data.append("image", image[key]);
     }
-    putReferans(form_data, state._id);
-    history.push("/Referanslar");
+
+    updateSlide(form_data, state._id);
+    history.push("/Slaytlar");
   };
   return (
     <>
@@ -102,7 +82,7 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
                       </li>
 
                       <li>
-                        <span>Referans Ekle</span>
+                        <span>Slayt Güncelle</span>
                       </li>
                     </ul>
                     <div className="page-content-inner">
@@ -120,24 +100,26 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
                               >
                                 <div className="form-body">
                                   <h3 className="form-section">
-                                    Referans Ekle
+                                    Slayt Güncelle
                                   </h3>
                                   <div className="form-group ">
                                     <label
                                       className="control-label col-md-3"
                                       htmlFor="inputSuccess"
                                     >
-                                      Firma Adı
+                                      Gösterilsin Mi
                                     </label>
                                     <div className="col-md-4">
                                       <input
-                                        required
-                                        type="text"
-                                        className="form-control"
+                                        type="checkbox"
                                         id="inputSuccess"
-                                        name="firmaAdi"
-                                        onChange={(e) => onChange(e)}
-                                        value={firmaAdi}
+                                        name="showMainPage"
+                                        onChange={(e) =>
+                                          setShowMainPage(
+                                            !showMainPage
+                                          )
+                                        }
+                                        checked={showMainPage}
                                       />{" "}
                                     </div>
                                   </div>
@@ -153,12 +135,10 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
                                         <div className="input-group input-large">
                                           <span className="input-group-addon btn default btn-file">
                                             <input
-                                              onChange={(e) => {
-                                                onChangeResim(e);
-                                              }}
+                                              onChange={(e) => onChange(e)}
                                               type="file"
-                                              name="resim"
-                                              required={hata ? true : false}
+                                              multiple
+                                              name="image"
                                             />{" "}
                                           </span>
                                         </div>
@@ -169,23 +149,22 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
                                               onClick={() => setIsOpen(true)}
                                               className="img-preview"
                                               src={
-                                                state == null ? "" : state.resim
+                                                state == null ? "" : state.image
                                               }
                                               alt=""
                                               key={
-                                                state == null ? "" : state.resim
+                                                state == null ? "" : state.image
                                               }
                                             />
                                           ) : (
                                             renderPhotos(selectedFiles)
                                           )}
                                         </div>
-
                                         {isOpen && (
                                           <Lightbox
                                             mainSrc={
                                               selectedFiles.length === 0
-                                                ? state.resim
+                                                ? state.image
                                                 : selectedFiles[photoIndex]
                                             }
                                             onCloseRequest={() =>
@@ -206,7 +185,7 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
                                       >
                                         Kaydet
                                       </button>
-                                      <Link to="/Referanslar">
+                                      <Link to="/Slaytlar">
                                         <button
                                           type="button"
                                           className="btn default"
@@ -226,14 +205,6 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
                   </div>
                 </div>
               </div>
-
-              {/*    <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -241,10 +212,10 @@ const ReferansGuncelle = ({ location: { state }, putReferans }) => {
     </>
   );
 };
-ReferansGuncelle.propTypes = {
-  putReferans: PropTypes.func.isRequired,
+SlideUpdate.propTypes = {
+  updateSlide: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({});
 export default connect(mapStateToProps, {
-  putReferans,
-})(ReferansGuncelle);
+  updateSlide,
+})(SlideUpdate);

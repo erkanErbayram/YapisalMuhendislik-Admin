@@ -2,23 +2,23 @@ import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link, useHistory } from "react-router-dom";
-import { getKategori } from "../../redux/actions/kategoriActions";
+import { getCategory } from "../../redux/actions/categoryActions";
 
-import { putAltKategori } from "../../redux/actions/altKategoriActions";
-const AltKategoriGuncelle = ({
+import { updateSubCategory } from "../../redux/actions/subCategoryActions";
+const SubCategoryUpdate = ({
   location: { state },
-  putAltKategori,
-  getKategori,
-  kategori: { kategoriler },
+  updateSubCategory,
+  getCategory,
+  category: { categories },
 }) => {
   let history = useHistory();
 
   const [formData, setFormData] = useState({
-    altKategoriAdi: state == null ? "" : state.altKategoriAdi,
-    kategori: state == null ? "" : state.kategori._id,
+    subCategoryName: state == null ? "" : state.subCategoryName,
+    category: state == null ? "" : state.category._id,
   });
-  const [secilenKategoriIndex, setSecilenKategoriIndex] = useState(1);
-  const { altKategoriAdi, kategori } = formData;
+  const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(1);
+  const { subCategoryName, category } = formData;
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,12 +28,12 @@ const AltKategoriGuncelle = ({
     if (typeof state === "undefined") {
       return history.push("/AltKategoriler");
     }
-    getKategori();
+    getCategory();
   }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    putAltKategori(altKategoriAdi, kategori, state._id);
+    updateSubCategory(subCategoryName, category, state._id);
 
     history.push("/AltKategoriler");
   };
@@ -86,9 +86,9 @@ const AltKategoriGuncelle = ({
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="altKategoriAdi"
+                                        name="subCategoryName"
                                         onChange={(e) => onChange(e)}
-                                        value={altKategoriAdi}
+                                        value={subCategoryName}
                                       />{" "}
                                     </div>
                                   </div>
@@ -100,14 +100,14 @@ const AltKategoriGuncelle = ({
                                       <select
                                         onChange={(e) => {
                                           onChange(e);
-                                          setSecilenKategoriIndex(
+                                          setSelectedCategoryIndex(
                                             e.target.selectedIndex
                                           );
                                         }}
                                         class="form-control"
                                         name="kategori"
                                         required={
-                                          secilenKategoriIndex === 0
+                                          selectedCategoryIndex === 0
                                             ? true
                                             : false
                                         }
@@ -115,18 +115,18 @@ const AltKategoriGuncelle = ({
                                         <option value="">
                                           Kategori Seçiniz
                                         </option>
-                                        {kategoriler.map(
-                                          (kategori, index) =>
-                                            kategori.aktifMi && (
+                                        {categories.map(
+                                          (category, index) =>
+                                            category.isActive && (
                                               <option
                                                 key={index}
-                                                value={kategori._id}
+                                                value={category._id}
                                                 selected={
-                                                  kategori.kategoriAdi ===
-                                                  state.kategori.kategoriAdi
+                                                  category.categoryName ===
+                                                  state.category.categoryName
                                                 }
                                               >
-                                                {kategori.kategoriAdi}
+                                                {category.categoryName}
                                               </option>
                                             )
                                         )}
@@ -163,14 +163,6 @@ const AltKategoriGuncelle = ({
                   </div>
                 </div>
               </div>
-              {/* 
-              <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -178,14 +170,14 @@ const AltKategoriGuncelle = ({
     </Fragment>
   );
 };
-AltKategoriGuncelle.propTypes = {
-  setKategori: PropTypes.func.isRequired,
-  deleteKategori: PropTypes.func.isRequired,
-  putAltKategori: PropTypes.func.isRequired,
+SubCategoryUpdate.propTypes = {
+  setCategory: PropTypes.func.isRequired,
+  deleteCategory: PropTypes.func.isRequired,
+  updateSubCategory: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  kategori: state.kategori,
+  category: state.category,
 });
-export default connect(mapStateToProps, { getKategori, putAltKategori })(
-  AltKategoriGuncelle
+export default connect(mapStateToProps, { getCategory, updateSubCategory })(
+  SubCategoryUpdate
 );

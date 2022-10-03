@@ -1,25 +1,36 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { setKategori } from "../../redux/actions/kategoriActions";
-import { useHistory } from "react-router";
-import { Link } from "react-router-dom";
-const KategoriEkle = ({ setKategori, error, loading }) => {
+import { updateCategory } from "../../redux/actions/categoryActions";
+import { Link, useHistory } from "react-router-dom";
+const CategoryUpdate = ({
+  location: { state },
+  updateCategory,
+  category: { err }
+}) => {
   const [formData, setFormData] = useState({
-    kategoriAdi: "",
+    categoryName: state == null ? "" : state.categoryName
   });
-  const { kategoriAdi } = formData;
-  const onChange = (e) => {
+
+  const { categoryName } = formData;
+  const onChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   let history = useHistory();
-  const onSubmit = async (e) => {
+  useEffect(() => {
+    if (typeof state === "undefined") {
+      return history.push("/Kategoriler");
+    }
+  }, []);
+  const onSubmit = async e => {
     e.preventDefault();
-    setKategori({ kategoriAdi });
-    setFormData({ kategoriAdi: "" });
-    history.push('/Kategoriler')
+    updateCategory(categoryName, state._id);
+    if (err) {
+      return;
+    } else {
+      history.push("/Kategoriler");
+    }
   };
-
   return (
     <Fragment>
       <div className="page-wrapper">
@@ -49,7 +60,7 @@ const KategoriEkle = ({ setKategori, error, loading }) => {
                             <div className="portlet-body">
                               {/* BEGIN FORM*/}
                               <form
-                                onSubmit={(e) => onSubmit(e)}
+                                onSubmit={e => onSubmit(e)}
                                 className="form-horizontal"
                               >
                                 <div className="form-body">
@@ -69,19 +80,13 @@ const KategoriEkle = ({ setKategori, error, loading }) => {
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="kategoriAdi"
-                                        onChange={(e) => onChange(e)}
-                                        value={kategoriAdi}
+                                        name="categoryName"
+                                        onChange={e => onChange(e)}
+                                        value={categoryName}
                                       />{" "}
                                     </div>
                                   </div>
-                                 {/*  {loading && error === null ? (
-                                    ""
-                                  ) : (
-                                    <div style={{ color: "red" }}>{error}</div>
-                                  )} */}
                                 </div>
-
                                 <div className="form-actions">
                                   <div className="row">
                                     <div className="col-md-offset-3 col-md-9">
@@ -92,12 +97,12 @@ const KategoriEkle = ({ setKategori, error, loading }) => {
                                         Kaydet
                                       </button>
                                       <Link to="/Kategoriler">
-                                      <button
-                                        type="button"
-                                        className="btn default"
-                                      >
-                                        İptal
-                                      </button>
+                                        <button
+                                          type="button"
+                                          className="btn default"
+                                        >
+                                          İptal
+                                        </button>
                                       </Link>
                                     </div>
                                   </div>
@@ -111,14 +116,6 @@ const KategoriEkle = ({ setKategori, error, loading }) => {
                   </div>
                 </div>
               </div>
-
-   {/*            <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -126,12 +123,8 @@ const KategoriEkle = ({ setKategori, error, loading }) => {
     </Fragment>
   );
 };
-KategoriEkle.propTypes = {
-  setKategori: PropTypes.func.isRequired,
+CategoryUpdate.propTypes = {
+  updateCategory: PropTypes.func.isRequired
 };
-const mapStateToProps = (state) => ({
-  kategori: state.kategori,
-  error: state.kategori.error,
-  loading: state.kategori.loading,
-});
-export default connect(mapStateToProps, { setKategori })(KategoriEkle);
+const mapStateToProps = state => ({ category: state.category });
+export default connect(mapStateToProps, { updateCategory })(CategoryUpdate);

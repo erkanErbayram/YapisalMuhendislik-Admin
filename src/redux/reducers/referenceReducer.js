@@ -1,54 +1,54 @@
 import {
-  GET_REFERANS_ERROR,
-  GET_REFERANS,
-  SET_REFERANS,
-  PUT_REFERANS,
-  DELETE_REFERANS,
-  DELETE_REFERANS_ERROR,
-  PUT_REFERANS_ERROR,
+  GET_REFERENCE_ERROR,
+  GET_REFERENCE,
+  SET_REFERENCE,
+  UPDATE_REFERENCE,
+  DELETE_REFERENCE,
+  DELETE_REFERENCE_ERROR,
+  UPDATE_REFERENCE_ERROR,
 } from "../actions/Types";
 const initialState = {
   loading: true,
-  ReferansList: [],
+  referenceList: [],
 };
-export default function referansReducer(state = initialState, action) {
+export default function referenceReducer(state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
-    case GET_REFERANS:
+    case GET_REFERENCE:
       return {
         ...state,
-        ReferansList: payload,
+        referenceList: payload,
         loading: false,
       };
-    case SET_REFERANS:
-      return {
-        ...state,
-        ...payload,
-        loading: false,
-      };
-      case PUT_REFERANS:
+    case SET_REFERENCE:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-      case DELETE_REFERANS:
+      case UPDATE_REFERENCE:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-      case PUT_REFERANS_ERROR:
+      case DELETE_REFERENCE:
+      return {
+        ...state,
+        ...payload,
+        loading: false,
+      };
+      case UPDATE_REFERENCE_ERROR:
         return {
           ...state,
           loading: false,
         };
-    case DELETE_REFERANS_ERROR:
+    case DELETE_REFERENCE_ERROR:
       return {
         ...state,
         loading: false,
       };
-      case GET_REFERANS_ERROR:
+      case GET_REFERENCE_ERROR:
       return {
         ...state,
         loading: false,

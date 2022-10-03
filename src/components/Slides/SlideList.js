@@ -1,16 +1,16 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { getSlayt, deleteSlayt } from "../../redux/actions/slaytActions";
+import { getSlide, deleteSlide } from "../../redux/actions/slideActions";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
-const SlaytList = ({ getSlayt, deleteSlayt, slayt: { slaytlar } }) => {
+const SlideList = ({ getSlide, deleteSlide, slide: { slides } }) => {
   useEffect(() => {
-    getSlayt();
-  }, [slaytlar]);
-  const onclickFunc = (aktifMi, id) => {
-    deleteSlayt({ aktifMi, id });
+    getSlide();
+  }, [slides]);
+  const onclickFunc = (isActive, id) => {
+    deleteSlide({ isActive, id });
   };
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -37,12 +37,11 @@ const SlaytList = ({ getSlayt, deleteSlayt, slayt: { slaytlar } }) => {
             </thead>
 
             <tbody>
-              {slaytlar.map((slayt, index) =>
-                slayt.aktifMi ? (
-                  <tr key={slayt._id}>
+              {slides.map((slide, index) =>
+                slide.isActive ? (
+                  <tr key={slide._id}>
                     <td>
-                      {" "}
-                      {slayt.anaSayfadaGosterilsinMi ? "Evet" : "Hayır"}{" "}
+                      {slide.showMainPage ? "Evet" : "Hayır"}{" "}
                     </td>
                     <td>
                       <img
@@ -51,16 +50,16 @@ const SlaytList = ({ getSlayt, deleteSlayt, slayt: { slaytlar } }) => {
                           setPhotoIndex(index);
                         }}
                         className="img-preview-list"
-                        src={slayt.resim}
+                        src={slide.image}
                         alt=""
-                        key={slayt.resim}
+                        key={slide.image}
                       />
                     </td>
                     <td>
                       <button
                         type="button"
                         onClick={() => {
-                          onclickFunc(false, slayt._id);
+                          onclickFunc(false, slide._id);
                         }}
                         className="btn green"
                       >
@@ -69,7 +68,7 @@ const SlaytList = ({ getSlayt, deleteSlayt, slayt: { slaytlar } }) => {
                       <Link
                         to={{
                           pathname: "/SlaytGuncelle",
-                          state: slayt,
+                          state: slide,
                         }}
                         className="btn green"
                       >
@@ -85,19 +84,19 @@ const SlaytList = ({ getSlayt, deleteSlayt, slayt: { slaytlar } }) => {
           </table>
           {isOpen && (
             <Lightbox
-              mainSrc={slaytlar[photoIndex].resim}
-              nextSrc={slaytlar[(photoIndex + 1) % slaytlar.length]}
+              mainSrc={slides[photoIndex].image}
+              nextSrc={slides[(photoIndex + 1) % slides.length]}
               prevSrc={
-                slaytlar[(photoIndex + slaytlar.length - 1) % slaytlar.length]
+                slides[(photoIndex + slides.length - 1) % slides.length]
               }
               onCloseRequest={() => setIsOpen(false)}
               onMovePrevRequest={() => {
                 setPhotoIndex(
-                  (photoIndex + slaytlar.length - 1) % slaytlar.length
+                  (photoIndex + slides.length - 1) % slides.length
                 );
               }}
               onMoveNextRequest={() =>
-                setPhotoIndex((photoIndex + 1) % slaytlar.length)
+                setPhotoIndex((photoIndex + 1) % slides.length)
               }
             />
           )}
@@ -106,11 +105,11 @@ const SlaytList = ({ getSlayt, deleteSlayt, slayt: { slaytlar } }) => {
     </Fragment>
   );
 };
-SlaytList.propTypes = {
-  getSlayt: PropTypes.func.isRequired,
+SlideList.propTypes = {
+  getSlide: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  slayt: state.slaytReducer,
+  slide: state.slideReducer,
 });
 
-export default connect(mapStateToProps, { getSlayt, deleteSlayt })(SlaytList);
+export default connect(mapStateToProps, { getSlide, deleteSlide })(SlideList);

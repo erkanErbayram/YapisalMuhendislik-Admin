@@ -1,60 +1,60 @@
 import {
-  GET_SLAYT,
-  GET_SLAYT_ERROR,
-  SET_SLAYT_ERROR,
-  SET_SLAYT,
-  PUT_SLAYT,
-  PUT_SLAYT_ERROR,
-  DELETE_SLAYT,
-  DELETE_SLAYT_ERROR,
+  GET_SLIDE,
+  GET_SLIDE_ERROR,
+  SET_SLIDE_ERROR,
+  SET_SLIDE,
+  UPDATE_SLIDE,
+  UPDATE_SLIDE_ERROR,
+  DELETE_SLIDE,
+  DELETE_SLIDE_ERROR,
 } from "../actions/Types";
 const initialState = {
   loading: true,
-  slaytlar: [],
+  slides: [],
 };
-export default function slaytReducer(state = initialState, action) {
+export default function slideReducer(state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
-    case GET_SLAYT:
+    case GET_SLIDE:
       return {
         ...state,
-        slaytlar: payload,
+        slides: payload,
         loading: false,
       };
-    case SET_SLAYT:
-      return {
-        ...state,
-        ...payload,
-        loading: false,
-      };
-    case PUT_SLAYT:
+    case SET_SLIDE:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-    case DELETE_SLAYT:
+    case UPDATE_SLIDE:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-    case PUT_SLAYT_ERROR:
+    case DELETE_SLIDE:
+      return {
+        ...state,
+        ...payload,
+        loading: false,
+      };
+    case UPDATE_SLIDE_ERROR:
       return {
         ...state,
         loading: false,
       };
-    case DELETE_SLAYT_ERROR:
+    case DELETE_SLIDE_ERROR:
       return {
         ...state,
         loading: false,
       };
-    case GET_SLAYT_ERROR:
+    case GET_SLIDE_ERROR:
       return {
         ...state,
         loading: false,
       };
-    case SET_SLAYT_ERROR:
+    case SET_SLIDE_ERROR:
       return {
         ...state,
         loading: false,

@@ -5,14 +5,7 @@ import { Link, Redirect } from "react-router-dom";
 import { login } from "../../redux/actions/authActions";
 import logo from "../../logo.png";
 const Login = ({ login, isAuthenticated, err }) => {
-  /*  let history = useHistory();
-  useEffect(() => {
-    if (isAuthenticated) {
-      history.push("/");
-    } else {
-      history.push("/login");
-    }
-  }, []); */
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -38,10 +31,8 @@ const Login = ({ login, isAuthenticated, err }) => {
             <img src={logo} alt="logo" />{" "}
           </Link>
         </div>
-        {/* END LOGO */}
-        {/* BEGIN LOGIN */}
+ 
         <div className="content">
-          {/* BEGIN LOGIN FORM */}
           <form className="login-form" onSubmit={onSubmit} method="post">
             <h3 className="form-title">Yapısal Mühendislik Admin</h3>
             <div className="alert alert-danger display-hide">
@@ -49,7 +40,6 @@ const Login = ({ login, isAuthenticated, err }) => {
               <span> Enter any username and password. </span>
             </div>
             <div className="form-group">
-              {/*ie8, ie9 does not support html5 placeholder, so we just show field title for that*/}
               <label className="control-label visible-ie8 visible-ie9">
                 E-mail
               </label>

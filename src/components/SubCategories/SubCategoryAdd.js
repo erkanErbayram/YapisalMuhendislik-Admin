@@ -3,33 +3,33 @@ import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link, useHistory } from "react-router-dom";
-import { getKategori } from "../../redux/actions/kategoriActions";
+import { getCategory } from "../../redux/actions/categoryActions";
 
-import { setAltKategori } from "../../redux/actions/altKategoriActions";
-const AltKategoriEkle = ({
-  getKategori,
-  setAltKategori,
-  kategori: { kategoriler },
+import { setCategory } from "../../redux/actions/subCategoryActions";
+const SubCategoryAdd = ({
+  getCategory,
+  setCategory,
+  category: { categories },
 }) => {
   const [formData, setFormData] = useState({
-    altKategoriAdi: "",
-    kategori: "",
+    subCategoryName: "",
+    category: "",
   });
-  const [secilenKategoriIndex, setSecilenKategoriIndex] = useState(0);
-  const { altKategoriAdi, kategori } = formData;
+  const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
+  const { subCategoryName, category } = formData;
   useEffect(() => {
-    getKategori();
-  }, [kategoriler]);
+    getCategory();
+  }, [categories]);
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   let history = useHistory();
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (secilenKategoriIndex === 0) {
+    if (selectedCategoryIndex === 0) {
       return;
     }
-    setAltKategori({ altKategoriAdi, kategori });
+    setCategory({ subCategoryName, category });
     history.push("/AltKategoriler");
   };
   return (
@@ -81,9 +81,9 @@ const AltKategoriEkle = ({
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="altKategoriAdi"
+                                        name="subCategoryName"
                                         onChange={(e) => onChange(e)}
-                                        value={altKategoriAdi}
+                                        value={subCategoryName}
                                       />{" "}
                                     </div>
                                   </div>
@@ -94,13 +94,13 @@ const AltKategoriEkle = ({
                                     <div class="col-md-4">
                                       <select
                                         onChange={(e) => {
-                                          setSecilenKategoriIndex(
+                                          setSelectedCategoryIndex(
                                             e.target.selectedIndex
                                           );
                                           onChange(e);
                                         }}
                                         required={
-                                          secilenKategoriIndex === 0
+                                          selectedCategoryIndex === 0
                                             ? true
                                             : false
                                         }
@@ -110,13 +110,13 @@ const AltKategoriEkle = ({
                                         <option value="">
                                           Kategori Seçiniz
                                         </option>
-                                        {kategoriler.map((kategori, index) => (
-                                          kategori.aktifMi ? (
+                                        {categories.map((category, index) => (
+                                          category.isActive ? (
                                             <option
                                               key={index}
-                                              value={kategori._id}
+                                              value={category._id}
                                             >
-                                              {kategori.kategoriAdi}
+                                              {category.categoryName}
                                             </option>
                                           ) : (
                                             ""
@@ -155,14 +155,6 @@ const AltKategoriEkle = ({
                   </div>
                 </div>
               </div>
-
-             {/*  <a href="javascript:;" className="page-quick-sidebar-toggler">
-                <i className="icon-login" />
-              </a>
-              <div
-                className="page-quick-sidebar-wrapper"
-                data-close-on-body-click="false"
-              ></div> */}
             </div>
           </div>
         </div>
@@ -170,14 +162,14 @@ const AltKategoriEkle = ({
     </Fragment>
   );
 };
-AltKategoriEkle.propTypes = {
-  setKategori: PropTypes.func.isRequired,
-  deleteKategori: PropTypes.func.isRequired,
-  setAltKategori: PropTypes.func.isRequired,
+SubCategoryAdd.propTypes = {
+  setCategory: PropTypes.func.isRequired,
+  deleteCategory: PropTypes.func.isRequired,
+  setCategory: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  kategori: state.kategori,
+  category: state.category,
 });
-export default connect(mapStateToProps, { getKategori, setAltKategori })(
-  AltKategoriEkle
+export default connect(mapStateToProps, { getCategory, setCategory })(
+  SubCategoryAdd
 );

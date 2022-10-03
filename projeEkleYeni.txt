@@ -1,3 +1,0 @@
-  "proxy": "http://185.171.90.190:80"
-  "proxy": "https://yapisal.herokuapp.com"
-  "proxy": "http://185.171.89.191:8080"

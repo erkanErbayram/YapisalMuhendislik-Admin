@@ -1,45 +1,45 @@
 import {
-  GET_ALTKATEGORI,
-  SET_ALTKATEGORI,
-  PUT_ALTKATEGORI,
-  GET_ALTKATEGORI_WITH_KATEGORI,
-  DELETE_KATEGORI,
+  GET_SUBCATEGORY,
+  SET_SUBCATEGORY,
+  UPDATE_SUBCATEGORY,
+  GET_SUBCATEGORY_WITH_CATEGORY,
+  DELETE_CATEGORY,
 } from "../actions/Types";
 const initialState = {
   loading: true,
-  altKategoriler: [],
-  altKategorilerWithKategori: [],
+  subCategoryies: [],
+  subCategoryWithCategory: [],
 };
 
-export default function altKategoriReducer(state = initialState, action) {
+export default function subCategoryReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
-    case GET_ALTKATEGORI:
+    case GET_SUBCATEGORY:
       return {
         ...state,
-        altKategoriler: payload,
+        subCategoryies: payload,
         loading: false,
       };
-    case GET_ALTKATEGORI_WITH_KATEGORI:
+    case GET_SUBCATEGORY_WITH_CATEGORY:
       return {
         ...state,
-        altKategorilerWithKategori: payload,
+        subCategoryWithCategory: payload,
         loading: false,
       };
-    case SET_ALTKATEGORI:
-      return {
-        ...state,
-        ...payload,
-        loading: false,
-      };
-    case PUT_ALTKATEGORI:
+    case SET_SUBCATEGORY:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-    case DELETE_KATEGORI:
+    case UPDATE_SUBCATEGORY:
+      return {
+        ...state,
+        ...payload,
+        loading: false,
+      };
+    case DELETE_CATEGORY:
       return {
         ...state,
         ...payload,

@@ -1,101 +1,117 @@
 import React, { useState, useEffect } from "react";
+
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { setProje } from "../../redux/actions/projeActions";
-import { getKategori } from "../../redux/actions/kategoriActions";
-import { getAltKategoriWithKategori } from "../../redux/actions/altKategoriActions";
-import { Link, useHistory } from "react-router-dom";
-import ImageUploading from "react-images-uploading";
+import { updateProject } from "../../redux/actions/projectActions";
+import { getCategory } from "../../redux/actions/categoryActions";
+import { getSubCategoryWithCategory } from "../../redux/actions/subCategoryActions";
 import Lightbox from "react-image-lightbox";
-import Spinner from "../Spinner";
+import ImageUploading from "react-images-uploading";
 import "react-image-lightbox/style.css";
-const ProjeEkle = ({
-  getKategori,
-  kategori: { kategoriler },
-  getAltKategoriWithKategori,
-  altKategori: { altKategorilerWithKategori, loading },
-  setProje,
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
+const ProjectUpdate = ({
+  location: { state },
+  getCategory,
+  category: { categories },
+  getSubCategoryWithCategory,
+  subCategory: { subCategoryWithCategory, loading },
+  updateProject,
 }) => {
-  const [kategoriIndex, setKategoriIndex] = useState(0);
-  const [secilenKategoriIndex, setSecilenKategoriIndex] = useState(0);
-  const [secilenAltKategoriIndex, setAltSecilenKategoriIndex] = useState(0);
-  const [formData, setFormData] = useState({
-    projeAdi: "",
-    adres: "",
-    metreKare: "",
-    kategori: "",
-    altKategori: "",
-    aciklama: "",
-  });
+  let history = useHistory();
 
-  const [resim, setResim] = useState([]);
+  const [categoryIndex, setCategoryIndex] = useState(0);
+  const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(1);
+  const [selectedSubCategoryIndex, setSelectedSubCategoryIndex] = useState(0);
+  if (typeof state === "undefined") {
+    history.push("/");
+  }
+
+  const [formData, setFormData] = useState({
+    projectName: state == null ? "" : state.projectName,
+    address: state == null ? "" : state.address,
+    squareMeters: state == null ? "" : state.squareMeters,
+    category: state == null ? "" : state.category._id,
+    subCategory:
+      typeof state.subCategory === "undefined" ||
+      state.subCategory == null ||
+      state == null
+        ? ""
+        : state.subCategory._id,
+    description: state == null ? "" : state.description,
+  });
+  const [image, setImage] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [images, setImages] = useState([]);
-  // eslint-disable-next-line
-  const [hata, setHata] = useState(false);
   const maxNumber = 40;
-  let history = useHistory();
+
   const {
-    projeAdi,
-    adres,
-    metreKare,
-    kategori,
-    altKategori,
-    aciklama,
+    projectName,
+    address,
+    squareMeters,
+    category,
+    subCategory,
+    description,
   } = formData;
   useEffect(() => {
-    getKategori();
-  }, [kategoriler, altKategorilerWithKategori]);
+    if (typeof state === "undefined") {
+      return history.push("/");
+    }
+    getCategory();
+    getSubCategoryWithCategory(state.category._id);
+    setImages(state.image);
+    setImage(state.image);
+  }, []);
+  const onChangeImage = (imageList, addUpdateIndex) => {
+    // data for submit
 
+    if (imageList.length === 0) {
+      setError(true);
+    } else {
+      setError(false);
+    }
+    setImages(imageList);
+
+    for (let index = 0; index < imageList.length; index++) {
+      if (typeof imageList[index].file !== "undefined") {
+        setImage((old) => [...old, imageList[index].file]);
+      }
+    }
+  };
   const onChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-  const onChangeImage = (imageList, addUpdateIndex) => {
-    if (imageList.length === 0) {
-      setResim([]);
-    }
-    if (imageList.length !== resim.length) {
-      setResim([]);
-    }
-    // data for submit
-
-    setImages(imageList);
-    for (let index = 0; index < imageList.length; index++) {
-      setResim((old) => [...old, imageList[index].file]);
-    }
-  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (resim.length === 0) {
-      setHata(true);
+    let form_data = new FormData();
+    if (error) {
       window.alert("Lütfen Resim Seçiniz");
       return;
     }
+    form_data.append("projectName", projectName);
+    form_data.append("address", address);
+    form_data.append("squareMeters", squareMeters);
+    form_data.append("category", category);
+    form_data.append(
+      "subCategory",
+      selectedSubCategoryIndex === 0 ? null : subCategory
+    );
 
-    let form_data = new FormData();
-    form_data.append("projeAdi", projeAdi);
-    form_data.append("adres", adres);
-    form_data.append("metreKare", metreKare);
-    form_data.append("kategori", kategori);
-    if (altKategori.length !== 0) {
-      form_data.append("altKategori", altKategori);
+    form_data.append("description", description);
+
+    for (let index = 0; index < image.length; index++) {
+      form_data.append("image", image[index]);
     }
-
-    form_data.append("aciklama", aciklama);
-    for (let index = 0; index < resim.length; index++) {
-      form_data.append("resim", resim[index]);
-    }
-
-    if (secilenKategoriIndex === 0) {
+    if (selectedCategoryIndex === 0) {
       return;
     }
-    debugger;
-    setProje(form_data);
+    updateProject(form_data, state._id);
     history.push("/");
   };
   return (
@@ -114,7 +130,7 @@ const ProjeEkle = ({
                       </li>
 
                       <li>
-                        <span>Proje Ekle</span>
+                        <span>Proje Guncelle</span>
                       </li>
                     </ul>
                     <div className="page-content-inner">
@@ -131,7 +147,9 @@ const ProjeEkle = ({
                                 className="form-horizontal"
                               >
                                 <div className="form-body">
-                                  <h3 className="form-section">Proje Ekle</h3>
+                                  <h3 className="form-section">
+                                    Proje Guncelle
+                                  </h3>
                                   <div className="form-group ">
                                     <label
                                       className="control-label col-md-3"
@@ -145,9 +163,9 @@ const ProjeEkle = ({
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="projeAdi"
+                                        name="projectName"
                                         onChange={(e) => onChange(e)}
-                                        value={projeAdi}
+                                        value={projectName}
                                       />{" "}
                                     </div>
                                   </div>
@@ -164,9 +182,9 @@ const ProjeEkle = ({
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="adres"
+                                        name="address"
                                         onChange={(e) => onChange(e)}
-                                        value={adres}
+                                        value={address}
                                       />{" "}
                                     </div>
                                   </div>
@@ -183,9 +201,9 @@ const ProjeEkle = ({
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="metreKare"
+                                        name="squareMeters"
                                         onChange={(e) => onChange(e)}
-                                        value={metreKare}
+                                        value={squareMeters}
                                       />{" "}
                                     </div>
                                   </div>
@@ -194,7 +212,7 @@ const ProjeEkle = ({
                                       className="control-label col-md-3"
                                       htmlFor="inputSuccess"
                                     >
-                                      Aciklama
+                                      description
                                     </label>
                                     <div className="col-md-4">
                                       <input
@@ -202,9 +220,9 @@ const ProjeEkle = ({
                                         type="text"
                                         className="form-control"
                                         id="inputSuccess"
-                                        name="aciklama"
+                                        name="description"
                                         onChange={(e) => onChange(e)}
-                                        value={aciklama}
+                                        value={description}
                                       />{" "}
                                     </div>
                                   </div>
@@ -214,23 +232,24 @@ const ProjeEkle = ({
                                     </label>
                                     <div class="col-md-4">
                                       <select
-                                        name="kategori"
+                                        name="category"
                                         onChange={async (e) => {
                                           if (e.target.selectedIndex === 0) {
-                                            setKategoriIndex(0);
+                                            setCategoryIndex(0);
                                           } else {
-                                            setKategoriIndex(1);
+                                            setCategoryIndex(1);
                                           }
-                                          setSecilenKategoriIndex(
+                                          setSelectedCategoryIndex(
                                             e.target.selectedIndex
                                           );
-                                          getAltKategoriWithKategori(
+                                          getSubCategoryWithCategory(
                                             e.target.value
                                           );
                                           onChange(e);
+                                          loading = false;
                                         }}
                                         required={
-                                          secilenKategoriIndex === 0
+                                          selectedCategoryIndex === 0
                                             ? true
                                             : false
                                         }
@@ -239,13 +258,17 @@ const ProjeEkle = ({
                                         <option value="">
                                           Kategori Seçiniz
                                         </option>
-                                        {kategoriler.map((kategori, index) =>
-                                          kategori.aktifMi ? (
+                                        {categories.map((category, index) =>
+                                          category.isActive ? (
                                             <option
                                               key={index}
-                                              value={kategori._id}
+                                              value={category._id}
+                                              selected={
+                                                category.categoryName ===
+                                                state.category.categoryName
+                                              }
                                             >
-                                              {kategori.kategoriAdi}
+                                              {category.categoryName}
                                             </option>
                                           ) : (
                                             ""
@@ -254,9 +277,8 @@ const ProjeEkle = ({
                                       </select>
                                     </div>
                                   </div>
-                                  {altKategorilerWithKategori.length === 0 ||
-                                  loading ||
-                                  kategoriIndex === 0 ? (
+                                  {typeof state.subCategory === "undefined" &&
+                                  subCategoryWithCategory.length === 0 ? (
                                     ""
                                   ) : (
                                     <div class="form-group">
@@ -265,34 +287,38 @@ const ProjeEkle = ({
                                       </label>
                                       <div class="col-md-4">
                                         <select
-                                          // required={
-                                          //secilenAltKategoriIndex === 0
-                                          //? true
-                                          //: false
-                                          //}
                                           class="form-control"
-                                          name="altKategori"
+                                          name="subCategory"
                                           onChange={(e) => {
-                                            setAltSecilenKategoriIndex(
+                                            onChange(e);
+                                            setSelectedSubCategoryIndex(
                                               e.target.selectedIndex
                                             );
-                                            onChange(e);
                                           }}
                                         >
                                           <option value="">
                                             Alt Kategori Seçiniz
                                           </option>
 
-                                          {altKategorilerWithKategori &&
-                                            altKategorilerWithKategori.map(
-                                              (altKategori1, index) =>
-                                                altKategori1.aktifMi ? (
+                                          {subCategoryWithCategory &&
+                                            subCategoryWithCategory.map(
+                                              (subCategory1, index) =>
+                                                subCategory1.aktifMi ? (
                                                   <option
                                                     key={index}
-                                                    value={altKategori1._id}
+                                                    value={subCategory1._id}
+                                                    selected={
+                                                      typeof state.subCategory ===
+                                                        "undefined" ||
+                                                      state.subCategory == null
+                                                        ? false
+                                                        : state.subCategory
+                                                            .subCategoryName ==
+                                                          subCategory1.subCategoryName
+                                                    }
                                                   >
                                                     {
-                                                      altKategori1.altKategoriAdi
+                                                      subCategory1.subCategoryName
                                                     }
                                                   </option>
                                                 ) : (
@@ -344,66 +370,103 @@ const ProjeEkle = ({
                                                 >
                                                   Resim Ekle
                                                 </button>
-                                                <div
-                                                  style={{ marginTop: "10" }}
-                                                ></div>
-                                                &nbsp;
-                                                {/*  <button
-                                                  onClick={onImageRemoveAll}
-                                                  className="btn green"
-                                                  type="button"
-                                                >
-                                                  Tüm Resimleri Sil
-                                                </button> */}
                                                 {imageList.map(
                                                   (image, index) => (
                                                     <div
                                                       key={index}
                                                       className="image-item"
                                                     >
-                                                      <img
-                                                        onClick={() => {
-                                                          setIsOpen(true);
+                                                      {typeof image[
+                                                        "data_url"
+                                                      ] !== "undefined" ? (
+                                                        <div>
+                                                          <img
+                                                            onClick={() => {
+                                                              setIsOpen(true);
 
-                                                          setPhotoIndex(index);
-                                                        }}
-                                                        src={image["data_url"]}
-                                                        alt=""
-                                                        width="100"
-                                                      />
-                                                      <div className="image-item__btn-wrapper">
-                                                        <button
-                                                          onClick={() =>
-                                                            onImageRemove(index)
-                                                          }
-                                                          className="btn green"
-                                                          type="button"
-                                                        >
-                                                          Sil
-                                                        </button>
-                                                      </div>
+                                                              setPhotoIndex(
+                                                                index
+                                                              );
+                                                            }}
+                                                            src={
+                                                              image["data_url"]
+                                                            }
+                                                            alt=""
+                                                            width="100"
+                                                          />
+                                                          <div className="image-item__btn-wrapper">
+                                                            <button
+                                                              onClick={() => {
+                                                                onImageRemove(
+                                                                  index
+                                                                );
+                                                              }}
+                                                              className="btn green"
+                                                              type="button"
+                                                            >
+                                                              Sil
+                                                            </button>
+                                                          </div>
+                                                        </div>
+                                                      ) : (
+                                                        <div>
+                                                          <img
+                                                            onClick={() => {
+                                                              setIsOpen(true);
+
+                                                              setPhotoIndex(
+                                                                index
+                                                              );
+                                                            }}
+                                                            src={image}
+                                                            alt=""
+                                                            width="100"
+                                                          />
+                                                          <div className="image-item__btn-wrapper">
+                                                            <button
+                                                              onClick={() => {
+                                                                onImageRemove(
+                                                                  index
+                                                                );
+                                                                image.splice(
+                                                                  index,
+                                                                  1
+                                                                );
+                                                              }}
+                                                              className="btn green"
+                                                              type="button"
+                                                            >
+                                                              Sil
+                                                            </button>
+                                                          </div>
+                                                        </div>
+                                                      )}
                                                     </div>
                                                   )
                                                 )}
                                                 {isOpen && (
                                                   <Lightbox
                                                     mainSrc={
-                                                      images[photoIndex]
-                                                        .data_url
+                                                      typeof images[photoIndex]
+                                                        .data_url ===
+                                                      "undefined"
+                                                        ? image[photoIndex]
+                                                        : images[photoIndex]
+                                                            .data_url
                                                     }
                                                     nextSrc={
-                                                      images[
+                                                      image[
                                                         (photoIndex + 1) %
-                                                          images.length
-                                                      ].data_url
+                                                          image.length
+                                                      ]
                                                     }
                                                     prevSrc={
-                                                      images[
+                                                      image[
                                                         (photoIndex +
-                                                          images.length -
+                                                          image.length -
                                                           1) %
-                                                          images.length
-                                                      ].data_url
+                                                          image.length
+                                                      ]
                                                     }
                                                     onCloseRequest={() =>
                                                       setIsOpen(false)
@@ -411,15 +474,15 @@ const ProjeEkle = ({
                                                     onMovePrevRequest={() =>
                                                       setPhotoIndex(
                                                         (photoIndex +
-                                                          images.length -
+                                                          image.length -
                                                           1) %
-                                                          images.length
+                                                          image.length
                                                       )
                                                     }
                                                     onMoveNextRequest={() =>
                                                       setPhotoIndex(
                                                         (photoIndex + 1) %
-                                                          images.length
+                                                          image.length
                                                       )
                                                     }
                                                   />
@@ -461,14 +524,14 @@ const ProjeEkle = ({
                   </div>
                 </div>
               </div>
-              {/* 
+
               <a href="javascript:;" className="page-quick-sidebar-toggler">
                 <i className="icon-login" />
               </a>
               <div
                 className="page-quick-sidebar-wrapper"
                 data-close-on-body-click="false"
-              ></div> */}
+              ></div>
             </div>
           </div>
         </div>
@@ -476,17 +539,17 @@ const ProjeEkle = ({
     </>
   );
 };
-ProjeEkle.propTypes = {
-  setProje: PropTypes.func.isRequired,
-  getAltKategoriWithKategori: PropTypes.func.isRequired,
-  getKategori: PropTypes.func.isRequired,
+ProjectUpdate.propTypes = {
+  updateProject: PropTypes.func.isRequired,
+  getSubCategoryWithCategory: PropTypes.func.isRequired,
+  getCategory: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  kategori: state.kategori,
-  altKategori: state.altKategori,
+  category: state.category,
+  subCategory: state.subCategory,
 });
 export default connect(mapStateToProps, {
-  setProje,
-  getKategori,
-  getAltKategoriWithKategori,
-})(ProjeEkle);
+  updateProject,
+  getCategory,
+  getSubCategoryWithCategory,
+})(ProjectUpdate);

@@ -1,16 +1,16 @@
 import { combineReducers } from "redux";
 import auth from "./authReducer";
-import kategori from "./kategoriReducer";
-import altKategori from "./altKategoriReducers";
-import projeReducer from "./projeReducer";
-import referansReducer from "./referansReducer";
-import slaytReducer from "./slaytReducer";
+import category from "./categoryReducer";
+import subCategory from "./subCategoryReducer";
+import projectReducer from "./projectReducer";
+import referenceReducer from "./referenceReducer";
+import slideReducer from "./slideReducer";
 
 export default combineReducers({
   auth,
-  kategori,
-  altKategori,
-  projeReducer,
-  referansReducer,
-  slaytReducer,
+  category,
+  subCategory,
+  projectReducer,
+  referenceReducer,
+  slideReducer,
 });

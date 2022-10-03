@@ -1,27 +1,27 @@
 import React, { Fragment, useEffect, useState } from "react";
 import {
-  getReferans,
-  deleteReferans,
-} from "../../redux/actions/referansActions";
+  getReference,
+  deleteReference,
+} from "../../redux/actions/referenceActions";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 import Spinner from "../Spinner";
-const ReferanList = ({
-  getReferans,
-  deleteReferans,
-  referans: { ReferansList, loading },
+const ReferenceList = ({
+  getReference,
+  deleteReference,
+  reference: { referenceList, loading },
 }) => {
   useEffect(() => {
-    getReferans();
+    getReference();
     
-  }, [ReferansList]);
+  }, [referenceList]);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const onclickFunc = (aktifMi, id) => {
-    deleteReferans({ aktifMi, id });
+  const onclickFunc = (isActive, id) => {
+    deleteReference({ isActive, id });
   };
   return (
     <Fragment>
@@ -49,10 +49,10 @@ const ReferanList = ({
               {loading ? (
                 <Spinner />
               ) : (
-                ReferansList.map((ref, index) =>
-                  ref.aktifMi ? (
+                referenceList.map((ref, index) =>
+                  ref.isActive ? (
                     <tr key={ref._id}>
-                      <td> {ref.firmaAdi} </td>
+                      <td> {ref.companyName} </td>
                       <td>
                         <img
                           onClick={() => {
@@ -60,9 +60,9 @@ const ReferanList = ({
                             setPhotoIndex(index);
                           }}
                           className="img-preview-list"
-                          src={ref.resim}
+                          src={ref.image}
                           alt=""
-                          key={ref.resim}
+                          key={ref.image}
                         />
                       </td>
                       <td>
@@ -95,22 +95,22 @@ const ReferanList = ({
           </table>
           {isOpen && (
             <Lightbox
-              mainSrc={ReferansList[photoIndex].resim}
-              nextSrc={ReferansList[(photoIndex + 1) % ReferansList.length]}
+              mainSrc={referenceList[photoIndex].image}
+              nextSrc={referenceList[(photoIndex + 1) % referenceList.length]}
               prevSrc={
-                ReferansList[
-                  (photoIndex + ReferansList.length - 1) % ReferansList.length
+                referenceList[
+                  (photoIndex + referenceList.length - 1) % referenceList.length
                 ]
               }
               onCloseRequest={() => setIsOpen(false)}
               onMovePrevRequest={() => {
                
                 setPhotoIndex(
-                  (photoIndex + ReferansList.length - 1) % ReferansList.length
+                  (photoIndex + referenceList.length - 1) % referenceList.length
                 );
               }}
               onMoveNextRequest={() =>
-                setPhotoIndex((photoIndex + 1) % ReferansList.length)
+                setPhotoIndex((photoIndex + 1) % referenceList.length)
               }
             />
           )}
@@ -119,14 +119,14 @@ const ReferanList = ({
     </Fragment>
   );
 };
-ReferanList.propTypes = {
-  getReferans: PropTypes.func.isRequired,
-  deleteReferans: PropTypes.func.isRequired,
+ReferenceList.propTypes = {
+  getReference: PropTypes.func.isRequired,
+  deleteReference: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  referans: state.referansReducer,
+  reference: state.referenceReducer,
 });
 
-export default connect(mapStateToProps, { getReferans, deleteReferans })(
-  ReferanList
+export default connect(mapStateToProps, { getReference, deleteReference })(
+  ReferenceList
 );

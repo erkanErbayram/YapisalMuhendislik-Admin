@@ -1,42 +1,42 @@
 import {
-  GET_PROJE,
-  SET_PROJE,
-  SET_PROJE_ERROR,
-  PUT_PROJE,
-  DELETE_PROJE,
+  GET_PROJECT,
+  SET_PROJECT,
+  SET_PROJECT_ERROR,
+  UPDATE_PROJECT,
+  DELETE_PROJECT,
 } from "../actions/Types";
 const initialState = {
   loading: true,
-  projeler: [],
+  projects: [],
 };
-export default function projeReducer(state = initialState, action) {
+export default function projectReducer(state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
-    case GET_PROJE:
+    case GET_PROJECT:
       return {
         ...state,
-        projeler: payload,
+        projects: payload,
         loading: false,
       };
-    case SET_PROJE:
-      return {
-        ...state,
-        ...payload,
-        loading: false,
-      };
-      case PUT_PROJE:
+    case SET_PROJECT:
       return {
         ...state,
         ...payload,
         loading: false,
       };
-      case DELETE_PROJE:
+      case UPDATE_PROJECT:
+      return {
+        ...state,
+        ...payload,
+        loading: false,
+      };
+      case DELETE_PROJECT:
         return {
           ...state,
           ...payload,
           loading: false,
         };
-    case SET_PROJE_ERROR:
+    case SET_PROJECT_ERROR:
       return {
         ...state,
         loading: false,

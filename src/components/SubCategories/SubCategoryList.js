@@ -3,20 +3,20 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
-  deleteAltKategori,
-  getAltKategori,
-} from "../../redux/actions/altKategoriActions";
+  deleteSubCategory,
+  getSubCategory,
+} from "../../redux/actions/subCategoryActions";
 import Spinner from "../Spinner";
-const AltKategoriList = ({
-  getAltKategori,
-  deleteAltKategori,
-  altKategori: { altKategoriler, loading },
+const SubCategoryList = ({
+  getSubCategory,
+  deleteSubCategory,
+  subCategory: { subCategories, loading },
 }) => {
   useEffect(() => {
-    getAltKategori();
-  }, [altKategoriler]);
-  const onclickFunc = (aktifMi, id) => {
-    deleteAltKategori({ aktifMi, id });
+    getSubCategory();
+  }, [subCategories]);
+  const onclickFunc = (isActive, id) => {
+    deleteSubCategory({ isActive, id });
   };
   return (
     <Fragment>
@@ -43,16 +43,16 @@ const AltKategoriList = ({
               {loading ? (
                 <Spinner  />
               ) : (
-                altKategoriler.map((altkategori) =>
-                  altkategori.aktifMi && altkategori.kategori.aktifMi ? (
-                    <tr key={altkategori._id}>
-                      <td> {altkategori.altKategoriAdi} </td>
-                      <td> {altkategori.kategori.kategoriAdi} </td>
+                subCategories.map((subCategory) =>
+                  subCategory.isActive && subCategory.category.isActive ? (
+                    <tr key={subCategory._id}>
+                      <td> {subCategory.subCategoryName} </td>
+                      <td> {subCategory.category.categoryName} </td>
                       <td>
                         <button
                           type="button"
                           onClick={(e) => {
-                            onclickFunc(false, altkategori._id);
+                            onclickFunc(false, subCategory._id);
                           }}
                           className="btn green"
                         >
@@ -61,7 +61,7 @@ const AltKategoriList = ({
                         <Link
                           to={{
                             pathname: "/AltKategoriGuncelle",
-                            state: altkategori,
+                            state: subCategory,
                           }}
                           className="btn green"
                         >
@@ -81,16 +81,15 @@ const AltKategoriList = ({
     </Fragment>
   );
 };
-AltKategoriList.propTypes = {
-  getAltKategori: PropTypes.func.isRequired,
-
-  deleteAltKategori: PropTypes.func.isRequired,
+SubCategoryList.propTypes = {
+  getSubCategory: PropTypes.func.isRequired,
+  deleteSubCategory: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  altKategori: state.altKategori,
+  subCategory: state.subCategory,
 });
 export default connect(mapStateToProps, {
-  getAltKategori,
+  getSubCategory,
 
-  deleteAltKategori,
-})(AltKategoriList);
+  deleteSubCategory,
+})(SubCategoryList);

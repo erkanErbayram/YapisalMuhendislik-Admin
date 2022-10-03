@@ -1,27 +1,27 @@
 import React, { Fragment, useEffect } from "react";
-import { deleteProje, getProje } from "../../redux/actions/projeActions";
+import { deleteProject, getProject } from "../../redux/actions/projectActions";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link, Redirect } from "react-router-dom";
 import Moment from "moment";
 import Spinner from "../Spinner";
-const ProjeList = ({
-  getProje,
-  deleteProje,
-  proje: { projeler,loading },
+const ProjectList = ({
+  getProject,
+  deleteProject,
+  project: { projects,loading },
   isAuthenticated,
 }) => {
   useEffect(() => {
-    getProje();
+    getProject();
 
     if (isAuthenticated) {
       return <Redirect to="/" />;
     } else {
       return <Redirect to="/login" />;
     }
-  }, [projeler]);
-  const onclickFunc = (aktifMi, id) => {
-    deleteProje({ aktifMi, id });
+  }, [projects]);
+  const onclickFunc = (isActive, id) => {
+    deleteProject({ isActive, id });
   };
   return (
     <Fragment>
@@ -52,18 +52,18 @@ const ProjeList = ({
               {loading ? (
                 <Spinner />
               ) : (
-                projeler.map((pro) =>
-                  pro.aktifMi &&
+                projects.map((pro) =>
+                  pro.isActive &&
                   //pro.altKategori !== null &&
-                  pro.kategori.aktifMi /* &&
-                  pro.altKategori.aktifMi */ ? (
+                  pro.category.isActive /* &&
+                  pro.altKategori.isActive */ ? (
                     <tr key={pro._id}>
-                      <td> {pro.projeAdi} </td>
-                      <td> {pro.adres} </td>
-                      <td> {pro.metreKare} </td>
-                      <td>{Moment(pro.eklenmeTarihi).format("DD-MM-YYYY")}</td>
-                      <td> {pro.kategori.kategoriAdi} </td>
-                      <td> {pro.altKategori ==null ? '':pro.altKategori.altKategoriAdi} </td>
+                      <td> {pro.projectName} </td>
+                      <td> {pro.address} </td>
+                      <td> {pro.squareMeters} </td>
+                      <td>{Moment(pro.date).format("DD-MM-YYYY")}</td>
+                      <td> {pro.category.categoryName} </td>
+                      <td> {pro.subCategory ==null ? '':pro.subCategory.subCategoryName} </td>
                       <td>
                         <button
                           type="button"
@@ -97,13 +97,13 @@ const ProjeList = ({
     </Fragment>
   );
 };
-ProjeList.propTypes = {
-  getProje: PropTypes.func.isRequired,
-  deleteProje: PropTypes.func.isRequired,
+ProjectList.propTypes = {
+  getProject: PropTypes.func.isRequired,
+  deleteProject: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  proje: state.projeReducer,
+  project: state.projectReducer,
   isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { getProje, deleteProje })(ProjeList);
+export default connect(mapStateToProps, { getProject, deleteProject })(ProjectList);

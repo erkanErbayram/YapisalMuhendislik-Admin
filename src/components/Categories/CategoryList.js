@@ -3,26 +3,20 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
-  getKategori,
-  deleteKategori,
-} from "../../redux/actions/kategoriActions";
+  getCategory,
+  deleteCategory,
+} from "../../redux/actions/categoryActions";
 import Spinner from "../Spinner";
-const KategoriList = ({
-  getKategori,
-  deleteKategori,
-  kategori: { kategoriler, loading },
+const CategoryList = ({
+  getCategory,
+  deleteCategory,
+  category: { categories, loading },
 }) => {
-  //const kategori1 = useSelector(state => state.kategori)
-  /* const mapStateToProps = (state) => ({
-  kategori: state.kategori,
-});
- */
-  
   useEffect(() => {
-    getKategori();
-  }, [kategoriler]);
-  const onclickFunc = (aktifMi, id) => {
-    deleteKategori({ aktifMi, id });
+    getCategory();
+  }, [categories]);
+  const onclickFunc = (isActive, id) => {
+    deleteCategory({ isActive, id });
   };
   return (
     <Fragment>
@@ -48,15 +42,15 @@ const KategoriList = ({
               {loading ? (
                 <Spinner />
               ) : (
-                kategoriler.map((kategori) =>
-                  kategori.aktifMi ? (
-                    <tr key={kategori._id}>
-                      <td> {kategori.kategoriAdi} </td>
+                categories.map((category) =>
+                  category.isActive ? (
+                    <tr key={category._id}>
+                      <td> {category.categoryName} </td>
                       <td>
                         <button
                           type="button"
                           onClick={(e) => {
-                            onclickFunc(false, kategori._id);
+                            onclickFunc(false, category._id);
                           }}
                           className="btn green"
                         >
@@ -65,7 +59,7 @@ const KategoriList = ({
                         <Link
                           to={{
                             pathname: "/KategoriGuncelle/",
-                            state: kategori,
+                            state: category,
                           }}
                           className="btn green"
                         >
@@ -85,14 +79,14 @@ const KategoriList = ({
     </Fragment>
   );
 };
-KategoriList.propTypes = {
-  setKategori: PropTypes.func.isRequired,
-  deleteKategori: PropTypes.func.isRequired,
+CategoryList.propTypes = {
+  setCategory: PropTypes.func.isRequired,
+  deleteCategory: PropTypes.func.isRequired,
 };
 const mapStateToProps = (state) => ({
-  kategori: state.kategori,
+  category: state.category,
 });
 
-export default connect(mapStateToProps, { getKategori, deleteKategori })(
-  KategoriList
+export default connect(mapStateToProps, { getCategory, deleteCategory })(
+  CategoryList
 );
